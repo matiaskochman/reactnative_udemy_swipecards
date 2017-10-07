@@ -66,6 +66,9 @@ class Deck extends Component{
 
     const item = data[this.state.index];
     direction === 'right' ? onSwipeRight(item) : onSwipeLeft(item);
+
+    this.state.position.setValue({x:0,y:0});
+    this.setState({index: this.state.index +1});
   }
   resetPosition(){
     Animated.spring(this.state.position,{
@@ -89,22 +92,36 @@ class Deck extends Component{
             transform: [{rotate}] };
   }
   renderCards(){
-    return this.props.data.map((item,index) => {
 
-      if(index === 0){
+    if(this.state.index >= this.props.data.length ){
+      return this.props.renderNoMoreCards();
+    }
+
+    return this.props.data.map((item,i) => {
+      if(i < this.state.index){return null};
+
+      if(i === this.state.index){
           return (
             <Animated.View
               key={item.id}
-              style={this.getCardStyle()}
+              style={[this.getCardStyle(), styles.cardStyle]}
               {...this.state.panResponder.panHandlers}>
                 {this.props.renderCard(item)}
             </Animated.View>
           );
       }
-      console.log('matias ', item);
-      return this.props.renderCard(item);
-    })
+
+      return (
+        <Animated.View style={styles.cardStyle}>
+          {
+            this.props.renderCard(item)
+          }
+        </Animated.View>
+      );
+    }).reverse();
+
   }
+
 
   render(){
     return(
@@ -115,4 +132,12 @@ class Deck extends Component{
   }
 }
 
+
+const styles = {
+  cardStyle :{
+    position: 'absolute',
+    width:SCREEN_WIDTH
+  }
+
+}
 export default Deck;
